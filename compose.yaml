@@ -1,0 +1,55 @@
+version: "3.9"
+
+services:
+  pgdrip1:
+    build: .
+    environment:
+      - PATRONI_NAME=pgdrip1
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - ETCD_INITIAL_CLUSTER=pgdrip1=http://pgdrip1:2380,pgdrip2=http://pgdrip2:2380,pgdrip3=http://pgdrip3:2380
+    ports:
+      - "5433:5432"   # Postgres
+      - "6433:6432"   # PgBouncer
+      - "8001:8008"   # Patroni API
+    volumes:
+      - pgdrip1_pg:/var/lib/postgresql/patroni
+      - pgdrip1_etcd:/var/lib/etcd
+
+  pgdrip2:
+    build: .
+    environment:
+      - PATRONI_NAME=pgdrip2
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - ETCD_INITIAL_CLUSTER=pgdrip1=http://pgdrip1:2380,pgdrip2=http://pgdrip2:2380,pgdrip3=http://pgdrip3:2380
+    ports:
+      - "5434:5432"
+      - "6434:6432"
+      - "8002:8008"
+    volumes:
+      - pgdrip2_pg:/var/lib/postgresql/patroni
+      - pgdrip2_etcd:/var/lib/etcd
+
+  pgdrip3:
+    build: .
+    environment:
+      - PATRONI_NAME=pgdrip3
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - ETCD_INITIAL_CLUSTER=pgdrip1=http://pgdrip1:2380,pgdrip2=http://pgdrip2:2380,pgdrip3=http://pgdrip3:2380
+    ports:
+      - "5435:5432"
+      - "6435:6432"
+      - "8003:8008"
+    volumes:
+      - pgdrip3_pg:/var/lib/postgresql/patroni
+      - pgdrip3_etcd:/var/lib/etcd
+
+volumes:
+  pgdrip1_pg:
+  pgdrip1_etcd:
+  pgdrip2_pg:
+  pgdrip2_etcd:
+  pgdrip3_pg:
+  pgdrip3_etcd:

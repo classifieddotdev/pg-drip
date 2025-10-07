@@ -1,0 +1,44 @@
+scope: pg-drip
+name: ${PATRONI_NAME}
+
+restapi:
+  listen: 0.0.0.0:8008
+  connect_address: ${HOSTNAME}:8008
+
+etcd3:
+  host: ${HOSTNAME}:2379
+
+bootstrap:
+  initdb:
+    - encoding: UTF8
+    - data-checksums
+  dcs:
+    ttl: 30
+    loop_wait: 10
+    retry_timeout: 10
+    postgresql:
+      parameters:
+        max_connections: 200
+        shared_buffers: 256MB
+  users:
+    admin:
+      password: admin
+      options:
+        - createrole
+        - createdb
+  pg_hba:
+    - host all all 0.0.0.0/0 trust
+    - host replication replicator 0.0.0.0/0 trust
+
+postgresql:
+  listen: 0.0.0.0:5432
+  connect_address: ${HOSTNAME}:5432
+  data_dir: /var/lib/postgresql/patroni
+  bin_dir: /usr/lib/postgresql/18/bin
+  authentication:
+    superuser:
+      username: ${POSTGRES_USER}
+      password: ${POSTGRES_PASSWORD}
+    replication:
+      username: replicator
+      password: replpass
