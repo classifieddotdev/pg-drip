@@ -4,7 +4,7 @@ FROM postgres:18
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       python3 python3-pip python3-setuptools python3-wheel \
-      curl ca-certificates gettext-base unzip && \
+      curl ca-certificates gettext-base unzip gosu && \
     pip3 install --no-cache-dir --break-system-packages patroni[consul] psycopg2-binary && \
     rm -rf /var/lib/apt/lists/*
 
@@ -28,11 +28,6 @@ RUN mkdir -p /var/lib/postgresql /var/lib/consul && \
 #  Drop privileges
 RUN mkdir -p /var/lib/postgresql/patroni && \
     chown -R postgres:postgres /var/lib/postgresql /var/lib/postgresql/patroni
-
-USER postgres
-
-# fix patroni perms 
-RUN chmod 0700 /var/lib/postgresql/patroni
 
 # Ports:
 # - 5432: Postgres

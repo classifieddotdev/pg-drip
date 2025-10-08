@@ -11,6 +11,8 @@ fi
 
 # fix consul permissions
 chown -R postgres:postgres /var/lib/consul || true
+# fix patroni permissions
+chmod 0700 /var/lib/postgresql/patroni
 
 # convenience 
 export PATRONI_CONFIG_FILE=/etc/patroni.yml
@@ -32,7 +34,7 @@ fi
 echo "Starting Consul with bootstrap-expect=$CONSUL_EXPECT $JOIN_ARGS"
 
 # Start Consul agent (backgrounded)
-consul agent \
+gosu postgres consul agent \
   -server \
   -bootstrap-expect=$CONSUL_EXPECT \
   -node="${PATRONI_NAME}" \
@@ -54,4 +56,4 @@ for i in {1..20}; do
 done
 
 # Start Patroni
-exec patroni /tmp/patroni.yml
+exec gosu postgres patroni /tmp/patroni.yml
