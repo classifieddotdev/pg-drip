@@ -100,3 +100,61 @@ accessories:
       - "8008:8008"
       - "8500:8500"
 ```
+
+### 2. Update .kamal/secrets
+```
+# Add these variables
+POSTGRES_USER=$SomeUser
+POSTGRES_PASSWORD=$SomePassword
+REPLICATION_PASSWORD=$TopSecretDoNotSharePls
+```
+
+### 3. Boot the accessory
+```bash
+kamal accessory boot pg-drip
+```
+
+--- 
+## Troubleshooting
+
+1. Sometimes when the initial cluster is started, a random node is selected as the leader, you can mitigate this by starting each node individually
+
+#### docker compose
+```bash
+docker compose -f 'compose.yaml' up -d --build 'pgdrip1' 
+docker compose -f 'compose.yaml' up -d --build 'pgdrip2' 
+docker compose -f 'compose.yaml' up -d --build 'pgdrip3' 
+```
+
+#### Kamal
+```bash
+kamal accessory boot pg-drip --hosts=host1
+kamal accessory boot pg-drip --hosts=host2
+kamal accessory boot pg-drip --hosts=host3
+```
+
+2. To check the status of a cluster, you can use patronictl **list**
+
+#### docker compose
+```bash
+docker exec <containerID> patronictl list
+```
+
+#### kamal
+```bash
+kamal accessory exec --hosts=host1 patronictl list
+```
+
+3. To manually switchover a cluster, you can use patronictl **switchover**
+
+#### docker compose
+```bash
+docker exec <containerID> patronictl switchover pg-drip --candidate host3
+```
+
+#### kamal
+```bash
+kamal accessory exec --hosts=host1 patronictl switchover pg-drip --candidate host3
+```
+
+## Warning: Only run patroni commands on 1 host at a time.
