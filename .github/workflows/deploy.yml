@@ -1,4 +1,4 @@
-name: Deploy main branch
+name: Build and upload container image
 on:
   workflow_dispatch:
     
