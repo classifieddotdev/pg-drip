@@ -6,6 +6,11 @@ if [ -z "$PATRONI_NAME" ]; then
   export PATRONI_NAME="$HOSTNAME"
 fi
 
+# Use ADVERTISE_IP if provided, else fallback to container hostname/IP
+if [ -z "$ADVERTISE_IP" ]; then
+  ADVERTISE_IP=$(hostname -i | awk '{print $1}')
+fi
+
 # Render patroni.yml with environment variables
 envsubst < /etc/patroni.yml > /tmp/patroni.yml
 
@@ -41,6 +46,7 @@ gosu postgres consul agent \
   -data-dir=/var/lib/consul \
   -bind=0.0.0.0 \
   -client=0.0.0.0 \
+  -advertise="$ADVERTISE_IP" \
   $JOIN_ARGS \
   -ui &
 
