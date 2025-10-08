@@ -9,6 +9,9 @@ if [ -z "$PATRONI_NAME" ]; then
   PATRONI_NAME="$HOSTNAME"
 fi
 
+# fix consul permissions
+chown -R postgres:postgres /var/lib/consul || true
+
 # convenience 
 export PATRONI_CONFIG_FILE=/etc/patroni.yml
 export PATRONI_SCOPE=pg-drip
