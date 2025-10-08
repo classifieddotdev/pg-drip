@@ -5,7 +5,6 @@ set -e
 envsubst < /etc/patroni.yml > /tmp/patroni.yml
 
 # fix patroni perms 
-chown -R postgres:postgres /var/lib/postgresql/patroni
 chmod 0700 /var/lib/postgresql/patroni
 
 # fallback: if no PATRONI_NAME set, use hostname

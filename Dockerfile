@@ -27,7 +27,7 @@ RUN mkdir -p /var/lib/postgresql /var/lib/consul && \
 
 #  Drop privileges
 RUN mkdir -p /var/lib/postgresql/patroni && \
-    chown -R postgres:postgres /var/lib/postgresql
+    chown -R postgres:postgres /var/lib/postgresql /var/lib/postgresql/patroni
 
 USER postgres
 
