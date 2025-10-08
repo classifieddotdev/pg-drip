@@ -3,7 +3,7 @@ set -e
 
 # fallback: if no PATRONI_NAME set, use hostname
 if [ -z "$PATRONI_NAME" ]; then
-  PATRONI_NAME="$HOSTNAME"
+  export PATRONI_NAME="$HOSTNAME"
 fi
 
 # Render patroni.yml with environment variables
