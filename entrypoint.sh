@@ -4,9 +4,6 @@ set -e
 # Render patroni.yml with environment variables
 envsubst < /etc/patroni.yml > /tmp/patroni.yml
 
-# fix patroni perms 
-chmod 0700 /var/lib/postgresql/patroni
-
 # fallback: if no PATRONI_NAME set, use hostname
 if [ -z "$PATRONI_NAME" ]; then
   PATRONI_NAME="$HOSTNAME"

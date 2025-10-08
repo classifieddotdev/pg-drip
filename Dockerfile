@@ -31,6 +31,9 @@ RUN mkdir -p /var/lib/postgresql/patroni && \
 
 USER postgres
 
+# fix patroni perms 
+RUN chmod 0700 /var/lib/postgresql/patroni
+
 # Ports:
 # - 5432: Postgres
 # - 8008: Patroni REST API
