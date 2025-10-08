@@ -1,3 +1,5 @@
+# this is an example compose to start a 3 node cluster locally
+
 version: "3.9"
 
 services:
@@ -7,6 +9,7 @@ services:
       - PATRONI_NAME=pgdrip1
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+      - REPLICATION_PASSWORD=secretpassword
       - ETCD_INITIAL_CLUSTER=pgdrip1=http://pgdrip1:2380,pgdrip2=http://pgdrip2:2380,pgdrip3=http://pgdrip3:2380
     ports:
       - "5433:5432"   # Postgres
@@ -22,6 +25,7 @@ services:
       - PATRONI_NAME=pgdrip2
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+      - REPLICATION_PASSWORD=secretpassword
       - ETCD_INITIAL_CLUSTER=pgdrip1=http://pgdrip1:2380,pgdrip2=http://pgdrip2:2380,pgdrip3=http://pgdrip3:2380
     ports:
       - "5434:5432"
@@ -37,6 +41,7 @@ services:
       - PATRONI_NAME=pgdrip3
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+      - REPLICATION_PASSWORD=secretpassword
       - ETCD_INITIAL_CLUSTER=pgdrip1=http://pgdrip1:2380,pgdrip2=http://pgdrip2:2380,pgdrip3=http://pgdrip3:2380
     ports:
       - "5435:5432"

@@ -1,10 +1,10 @@
 FROM postgres:18
 
-# Install deps: python, pip, patroni, PgBouncer
+# Install deps: python, pip, patroni
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       python3 python3-pip python3-setuptools python3-wheel \
-      curl ca-certificates pgbouncer gettext-base && \
+      curl ca-certificates gettext-base && \
     pip3 install --no-cache-dir --break-system-packages patroni[etcd] psycopg2-binary && \
     rm -rf /var/lib/apt/lists/*
 
@@ -24,15 +24,13 @@ RUN case "${TARGETARCH}" in \
 
 # Copy configs
 COPY patroni.yml /etc/patroni.yml
-COPY pgbouncer.ini /etc/pgbouncer/pgbouncer.ini
-COPY userlist.txt /etc/pgbouncer/userlist.txt
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # Prepare data + runtime dirs
-RUN mkdir -p /var/lib/postgresql /var/lib/etcd /var/run/pgbouncer && \
-    chown -R postgres:postgres /var/lib/postgresql /var/lib/etcd /var/run/pgbouncer
+RUN mkdir -p /var/lib/postgresql /var/lib/etcd && \
+    chown -R postgres:postgres /var/lib/postgresql /var/lib/etcd
 
 #  Drop privileges
 RUN mkdir -p /var/lib/postgresql/patroni && \
@@ -40,15 +38,11 @@ RUN mkdir -p /var/lib/postgresql/patroni && \
 
 USER postgres
 
-# Volumes for persistence
-VOLUME ["/var/lib/postgresql/patroni", "/var/lib/etcd"]
-
 # Ports:
 # - 5432: Postgres
-# - 6432: PgBouncer
 # - 8008: Patroni REST API
 # - 2379: etcd client
 # - 2380: etcd peer
-EXPOSE 5432 6432 8008 2379 2380
+EXPOSE 5432 8008 2379 2380
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

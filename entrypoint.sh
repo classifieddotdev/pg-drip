@@ -15,10 +15,9 @@ etcd \
   --advertise-client-urls=http://${PATRONI_NAME}:2379 \
   --listen-client-urls=http://0.0.0.0:2379 &
 
-# Start PgBouncer
-mkdir -p /var/run/pgbouncer
-chown postgres:postgres /var/run/pgbouncer
-pgbouncer -d /etc/pgbouncer/pgbouncer.ini &
+# fix patroni perms 
+chown -R postgres:postgres /var/lib/postgresql/patroni
+chmod 0700 /var/lib/postgresql/patroni &
 
 # Start Patroni
 exec patroni /tmp/patroni.yml

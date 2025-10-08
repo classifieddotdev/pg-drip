@@ -18,6 +18,7 @@ bootstrap:
     retry_timeout: 10
     postgresql:
       parameters:
+        password_encryption: md5
         max_connections: 200
         shared_buffers: 256MB
   users:
@@ -27,8 +28,15 @@ bootstrap:
         - createrole
         - createdb
   pg_hba:
-    - host all all 0.0.0.0/0 trust
-    - host replication replicator 0.0.0.0/0 trust
+    # 1. Local connections (Unix sockets, psql inside container)
+    - local   all             all                                     trust
+    # 2. Allow PgBouncer (running on same host/container) to connect
+    - host    all             all             127.0.0.1/32            trust
+    - host    all             all             ::1/128                 trust
+    # 3. External clients (connecting through PgCat)
+    - host    all             all             0.0.0.0/0               md5
+    # 4. Replication between nodes
+    - host    replication     replicator      0.0.0.0/0               md5
 
 postgresql:
   listen: 0.0.0.0:5432
@@ -41,4 +49,4 @@ postgresql:
       password: ${POSTGRES_PASSWORD}
     replication:
       username: replicator
-      password: replpass
+      password: ${REPLICATION_PASSWORD}
