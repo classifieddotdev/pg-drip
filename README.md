@@ -73,32 +73,26 @@ accessories:
       - host3
     env:
       clear:
-        CONSUL_EXPECT: 3                 # 3 nodes is recommended for High Availibility
-        CONSUL_JOIN: host1               # Bootstrap gossip on host1
+        CONSUL_EXPECT: '3'                 # 3 nodes is recommended for High Availibility
+        CONSUL_JOIN: 'host1'               # Bootstrap gossip on host1
       secret:
-        - POSTGRES_USER                  # Define these in .kamal/secrets
+        - POSTGRES_USER                    # Define these in .kamal/secrets
         - POSTGRES_PASSWORD
         - REPLICATION_PASSWORD
-    host_vars:
-      host1:
-        env:
-          clear:
-            PATRONI_NAME: "pgdrip1"
-      host2:
-        env:
-          clear:
-            PATRONI_NAME: "pgdrip2"
-      host3:
-        env:
-          clear:
-            PATRONI_NAME: "pgdrip3"
+    options:
+        publish:
+          - "5432:5432"
+          - "8008:8008"
+          - "8500:8500"
+          - "8300:8300"
+          - "8301:8301/tcp"
+          - "8301:8301/udp"
+          - "8302:8302/tcp"
+          - "8302:8302/udp"
+
     directories:
-      - /var/lib/postgresql/patroni
-      - /var/lib/consul
-    ports:
-      - "5432:5432"
-      - "8008:8008"
-      - "8500:8500"
+      - pgdrip-data:/var/lib/postgresql/patroni
+      - pgdrip-consul:/var/lib/consul
 ```
 
 ### 2. Update .kamal/secrets
@@ -142,7 +136,7 @@ docker exec <containerID> patronictl list
 
 #### kamal
 ```bash
-kamal accessory exec --hosts=host1 patronictl list
+kamal accessory exec pg-drip --hosts=host1 patronictl list
 ```
 
 3. To manually switchover a cluster, you can use patronictl **switchover**
@@ -154,7 +148,8 @@ docker exec <containerID> patronictl switchover pg-drip --candidate host3
 
 #### kamal
 ```bash
-kamal accessory exec --hosts=host1 patronictl switchover pg-drip --candidate host3
+kamal accessory exec pg-drip --hosts=host1 patronictl switchover pg-drip --candidate host3
 ```
 
 ## Warning: Only run patroni commands on 1 host at a time.
+## Warning: kamal accessory **exec** can be unreliable, attaching to the container via docker exec -it is more stable.
