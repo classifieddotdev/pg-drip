@@ -1,0 +1,19 @@
+name: Deploy main branch
+on:
+  workflow_dispatch:
+    
+# Required for secrets.GITHUB_TOKEN
+permissions:
+  packages: write
+  contents: read
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Push to Github Container Repository
+      uses: Clipr-Group/ghcr-action@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        platforms: linux/amd64,linux/arm64
