@@ -8,6 +8,11 @@ envsubst < /etc/patroni.yml > /tmp/patroni.yml
 chown -R postgres:postgres /var/lib/postgresql/patroni
 chmod 0700 /var/lib/postgresql/patroni
 
+# fallback: if no PATRONI_NAME set, use hostname
+if [ -z "$PATRONI_NAME" ]; then
+  PATRONI_NAME="$HOSTNAME"
+fi
+
 # convenience 
 export PATRONI_CONFIG_FILE=/etc/patroni.yml
 export PATRONI_SCOPE=pg-drip
