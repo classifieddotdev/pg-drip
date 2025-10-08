@@ -5,8 +5,9 @@ restapi:
   listen: 0.0.0.0:8008
   connect_address: ${HOSTNAME}:8008
 
-etcd3:
-  host: ${HOSTNAME}:2379
+consul:
+  host: 127.0.0.1:8500
+  scheme: http
 
 bootstrap:
   initdb:
@@ -37,6 +38,7 @@ bootstrap:
     - host    all             all             0.0.0.0/0               md5
     # 4. Replication between nodes
     - host    replication     replicator      0.0.0.0/0               md5
+
 
 postgresql:
   listen: 0.0.0.0:5432

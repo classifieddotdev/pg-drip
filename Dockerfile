@@ -4,33 +4,26 @@ FROM postgres:18
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       python3 python3-pip python3-setuptools python3-wheel \
-      curl ca-certificates gettext-base && \
-    pip3 install --no-cache-dir --break-system-packages patroni[etcd] psycopg2-binary && \
+      curl ca-certificates gettext-base unzip && \
+    pip3 install --no-cache-dir --break-system-packages patroni[consul] psycopg2-binary && \
     rm -rf /var/lib/apt/lists/*
 
-# Install etcd (multi-arch safe)
-ARG TARGETARCH
-ENV ETCD_VER=v3.5.16
-RUN case "${TARGETARCH}" in \
-      amd64) ARCH=amd64 ;; \
-      arm64) ARCH=arm64 ;; \
-      *) echo "unsupported arch: ${TARGETARCH}" && exit 1 ;; \
-    esac && \
-    curl -L https://github.com/etcd-io/etcd/releases/download/${ETCD_VER}/etcd-${ETCD_VER}-linux-${ARCH}.tar.gz \
-    | tar xz -C /tmp && \
-    cp /tmp/etcd-${ETCD_VER}-linux-${ARCH}/etcd /usr/local/bin/ && \
-    cp /tmp/etcd-${ETCD_VER}-linux-${ARCH}/etcdctl /usr/local/bin/ && \
-    rm -rf /tmp/etcd-${ETCD_VER}-linux-${ARCH}
+# Install Consul
+ENV CONSUL_VERSION=1.17.0
+RUN curl -L https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_$(dpkg --print-architecture).zip \
+    -o consul.zip && \
+    unzip consul.zip && \
+    mv consul /usr/local/bin/ && \
+    rm consul.zip
 
 # Copy configs
 COPY patroni.yml /etc/patroni.yml
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # Prepare data + runtime dirs
-RUN mkdir -p /var/lib/postgresql /var/lib/etcd && \
-    chown -R postgres:postgres /var/lib/postgresql /var/lib/etcd
+RUN mkdir -p /var/lib/postgresql /var/lib/consul && \
+    chown -R postgres:postgres /var/lib/postgresql /var/lib/consul
 
 #  Drop privileges
 RUN mkdir -p /var/lib/postgresql/patroni && \
@@ -41,8 +34,9 @@ USER postgres
 # Ports:
 # - 5432: Postgres
 # - 8008: Patroni REST API
-# - 2379: etcd client
-# - 2380: etcd peer
-EXPOSE 5432 8008 2379 2380
+# - 8500: Consul HTTP
+# - 8300: Consul server RPC
+# - 8301/8302: Consul gossip LAN/WAN
+EXPOSE 5432 8008 8500 8300 8301 8302
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

@@ -10,14 +10,15 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - REPLICATION_PASSWORD=secretpassword
-      - ETCD_INITIAL_CLUSTER=pgdrip1=http://pgdrip1:2380,pgdrip2=http://pgdrip2:2380,pgdrip3=http://pgdrip3:2380
+      - CONSUL_EXPECT=3
+      - CONSUL_JOIN=pgdrip1
     ports:
       - "5433:5432"   # Postgres
       - "6433:6432"   # PgBouncer
       - "8001:8008"   # Patroni API
     volumes:
       - pgdrip1_pg:/var/lib/postgresql/patroni
-      - pgdrip1_etcd:/var/lib/etcd
+      - pgdrip1_consul:/var/lib/consul
 
   pgdrip2:
     build: .
@@ -26,14 +27,15 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - REPLICATION_PASSWORD=secretpassword
-      - ETCD_INITIAL_CLUSTER=pgdrip1=http://pgdrip1:2380,pgdrip2=http://pgdrip2:2380,pgdrip3=http://pgdrip3:2380
+      - CONSUL_EXPECT=3
+      - CONSUL_JOIN=pgdrip1
     ports:
       - "5434:5432"
       - "6434:6432"
       - "8002:8008"
     volumes:
       - pgdrip2_pg:/var/lib/postgresql/patroni
-      - pgdrip2_etcd:/var/lib/etcd
+      - pgdrip2_consul:/var/lib/consul
 
   pgdrip3:
     build: .
@@ -42,19 +44,40 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - REPLICATION_PASSWORD=secretpassword
-      - ETCD_INITIAL_CLUSTER=pgdrip1=http://pgdrip1:2380,pgdrip2=http://pgdrip2:2380,pgdrip3=http://pgdrip3:2380
+      - CONSUL_EXPECT=3
+      - CONSUL_JOIN=pgdrip1
     ports:
       - "5435:5432"
       - "6435:6432"
       - "8003:8008"
     volumes:
       - pgdrip3_pg:/var/lib/postgresql/patroni
-      - pgdrip3_etcd:/var/lib/etcd
+      - pgdrip3_consul:/var/lib/consul
+
+  pgdrip4:
+    build: .
+    environment:
+      - PATRONI_NAME=pgdrip4
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - REPLICATION_PASSWORD=secretpassword
+      - CONSUL_EXPECT=3
+      - CONSUL_JOIN=pgdrip1
+    ports:
+      - "5436:5432"
+      - "6436:6432"
+      - "8004:8008"
+    volumes:
+      - pgdrip4_pg:/var/lib/postgresql/patroni
+      - pgdrip4_consul:/var/lib/consul
+
 
 volumes:
   pgdrip1_pg:
-  pgdrip1_etcd:
+  pgdrip1_consul:
   pgdrip2_pg:
-  pgdrip2_etcd:
+  pgdrip2_consul:
   pgdrip3_pg:
-  pgdrip3_etcd:
+  pgdrip3_consul:
+  pgdrip4_pg:
+  pgdrip4_consul:
