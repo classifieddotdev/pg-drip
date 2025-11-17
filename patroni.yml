@@ -3,7 +3,7 @@ name: ${PATRONI_NAME}
 
 restapi:
   listen: 0.0.0.0:8008
-  connect_address: ${HOSTNAME}:8008
+  connect_address: ${KAMAL_HOST}:8008
 
 consul:
   host: 127.0.0.1:8500
@@ -42,7 +42,7 @@ bootstrap:
 
 postgresql:
   listen: 0.0.0.0:5432
-  connect_address: ${HOSTNAME}:5432
+  connect_address: ${KAMAL_HOST}:5432
   data_dir: /var/lib/postgresql/patroni
   bin_dir: /usr/lib/postgresql/18/bin
   authentication:
