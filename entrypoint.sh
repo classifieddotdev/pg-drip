@@ -17,8 +17,8 @@ envsubst < /etc/patroni.yml > /tmp/patroni.yml
 # fix consul permissions
 chown -R postgres:postgres /var/lib/consul || true
 # fix patroni permissions
-chown -R postgres:postgres /var/lib/postgresql/patroni || true
-chmod 0700 /var/lib/postgresql/patroni
+#chown -R postgres:postgres /var/lib/postgresql/patroni || true
+#chmod 0700 /var/lib/postgresql/patroni
 
 # convenience 
 export PATRONI_CONFIG_FILE=/etc/patroni.yml

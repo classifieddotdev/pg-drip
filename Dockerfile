@@ -25,10 +25,6 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 RUN mkdir -p /var/lib/postgresql /var/lib/consul && \
     chown -R postgres:postgres /var/lib/postgresql /var/lib/consul
 
-#  Drop privileges
-RUN mkdir -p /var/lib/postgresql/patroni && \
-    chown -R postgres:postgres /var/lib/postgresql /var/lib/postgresql/patroni
-
 # Ports:
 # - 5432: Postgres
 # - 8008: Patroni REST API
