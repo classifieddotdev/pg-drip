@@ -1,9 +1,6 @@
 #!/bin/bash
 set -e
 
-DATA_DIR="/var/lib/postgresql/patroni"
-CONSUL_DIR="/var/lib/consul"
-
 # fallback: if no PATRONI_NAME set, use hostname
 if [ -z "$PATRONI_NAME" ]; then
   export PATRONI_NAME="$HOSTNAME"
@@ -17,17 +14,11 @@ fi
 # Render patroni.yml with environment variables
 envsubst < /etc/patroni.yml > /tmp/patroni.yml
 
-# Ensure Patroni data dir exists (required when mounted on parent)
-mkdir -p "$DATA_DIR"
-
 # fix consul permissions
 chown -R postgres:postgres /var/lib/consul || true
 # fix patroni permissions
-if [ "$(stat -c '%U' "$DATA_DIR")" != "postgres" ]; then
-  echo "Fixing ownership for $DATA_DIR"
-  chown -R postgres:postgres "$DATA_DIR"
-fi
-chmod 0700 "$DATA_DIR"
+chown -R postgres:postgres /var/lib/postgresql/patroni || true
+chmod 0700 /var/lib/postgresql/patroni
 
 # convenience 
 export PATRONI_CONFIG_FILE=/etc/patroni.yml
