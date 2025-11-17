@@ -3,7 +3,11 @@ set -e
 
 # fallback: if no PATRONI_NAME set, use hostname
 if [ -z "$PATRONI_NAME" ]; then
-  export PATRONI_NAME="$HOSTNAME"
+  if [ -n "$KAMAL_HOST" ]; then
+    export PATRONI_NAME="$KAMAL_HOST"
+  else
+    export PATRONI_NAME="$HOSTNAME"
+  fi
 fi
 
 # Use ADVERTISE_IP if provided, else fallback to container hostname/IP
