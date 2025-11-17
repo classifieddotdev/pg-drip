@@ -27,7 +27,7 @@ chown -R postgres:postgres /var/lib/postgresql || true
 #chmod 0700 /var/lib/postgresql/patroni
 
 # convenience 
-export PATRONI_CONFIG_FILE=/etc/patroni.yml
+export PATRONI_CONFIG_FILE=/tmp/patroni.yml
 export PATRONI_SCOPE=pg-drip
 
 # Default values
