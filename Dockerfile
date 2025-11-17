@@ -25,6 +25,9 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 RUN mkdir -p /var/lib/postgresql /var/lib/consul && \
     chown -R postgres:postgres /var/lib/postgresql /var/lib/consul
 
+# for convenience
+RUN export PATRONI_CONFIG_FILE=/tmp/patroni.yml
+
 # Ports:
 # - 5432: Postgres
 # - 8008: Patroni REST API
