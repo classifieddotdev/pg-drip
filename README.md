@@ -66,7 +66,7 @@ So you’re serious now huh? 👀 Time to deploy pg-drip in the wild.
 accessories:
   pg-drip:
     service: pg-drip
-    image: ghcr.io/classifieddotdev/pg-drip:latest
+    image: classifieddotdev/pg-drip:latest
     hosts:
       - host1
       - host2
