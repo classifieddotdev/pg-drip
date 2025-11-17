@@ -1,19 +1,21 @@
 #!/bin/bash
 set -e
 
-# fallback: if no PATRONI_NAME set, use hostname
-if [ -z "$PATRONI_NAME" ]; then
-  if [ -n "$KAMAL_HOST" ]; then
-    export PATRONI_NAME="$KAMAL_HOST"
-  else
-    export PATRONI_NAME="$HOSTNAME"
-  fi
-fi
-
 # Use ADVERTISE_IP if provided, else fallback to container hostname/IP
 if [ -z "$KAMAL_HOST" ]; then
   KAMAL_HOST=$(hostname -i | awk '{print $1}')
 fi
+
+# Force Patroni name to KAMAL_HOST if available
+export PATRONI_NAME="$KAMAL_HOST"
+
+# Always derive a Patroni name if missing
+if [ -z "$PATRONI_NAME" ]; then
+  export PATRONI_NAME="$HOSTNAME"
+fi
+
+echo "Using Patroni name: $PATRONI_NAME"
+sleep 3
 
 # Render patroni.yml with environment variables
 envsubst < /etc/patroni.yml > /tmp/patroni.yml
