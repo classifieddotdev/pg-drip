@@ -6,15 +6,30 @@ if [ -z "$KAMAL_HOST" ]; then
   KAMAL_HOST=$(hostname -i | awk '{print $1}')
 fi
 
-# Force Patroni name to KAMAL_HOST if available
-export PATRONI_NAME="$KAMAL_HOST"
-
-# Always derive a Patroni name if missing
-if [ -z "$PATRONI_NAME" ]; then
-  export PATRONI_NAME="$HOSTNAME"
+# Resolve KAMAL_HOST to an IP. Kamal sets KAMAL_HOST to the literal host string
+# from config, which may be a DNS name (e.g. prod1.mesh.xreach.dev). Consul
+# -advertise rejects hostnames ("invalid ip address"); Patroni connect_address
+# also wants a resolvable IP. Keep the original as PATRONI_NAME for readable
+# cluster identity, but use the resolved IP for advertise + connect_address.
+if ! echo "$KAMAL_HOST" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$|^[0-9a-fA-F:]+$'; then
+  # Prefer IPv4 (CONSUL_JOIN gossip uses IPv4); fall back to whatever resolves.
+  RESOLVED=$(getent ahostsv4 "$KAMAL_HOST" 2>/dev/null | awk '{print $1}' | head -1)
+  if [ -z "$RESOLVED" ]; then
+    RESOLVED=$(getent hosts "$KAMAL_HOST" | awk '{print $1}' | head -1)
+  fi
+  if [ -z "$RESOLVED" ]; then
+    echo "Warning: could not resolve '$KAMAL_HOST' to an IP; using as-is"
+    ADVERTISE_IP="$KAMAL_HOST"
+  else
+    echo "Resolved KAMAL_HOST '$KAMAL_HOST' -> '$RESOLVED'"
+    ADVERTISE_IP="$RESOLVED"
+  fi
+else
+  ADVERTISE_IP="$KAMAL_HOST"
 fi
-
-echo "Using Patroni name: $PATRONI_NAME"
+export ADVERTISE_IP
+export PATRONI_NAME="$KAMAL_HOST"
+echo "Using Patroni name: $PATRONI_NAME (advertise IP: $ADVERTISE_IP)"
 sleep 3
 
 # Render patroni.yml with environment variables
@@ -53,7 +68,7 @@ gosu postgres consul agent \
   -data-dir=/var/lib/consul \
   -bind=0.0.0.0 \
   -client=0.0.0.0 \
-  -advertise="$KAMAL_HOST" \
+  -advertise="$ADVERTISE_IP" \
   $JOIN_ARGS \
   -ui &
 
